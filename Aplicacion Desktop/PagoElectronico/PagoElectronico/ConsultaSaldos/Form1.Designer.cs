@@ -1,4 +1,4 @@
-﻿namespace PagoElectronico.Listados
+﻿namespace PagoElectronico.ConsultaSaldos
 {
     partial class Form1
     {

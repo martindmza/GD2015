@@ -1,4 +1,4 @@
-﻿namespace PagoElectronico.Listados
+﻿namespace PagoElectronico.ABMRol
 {
     partial class Form1
     {

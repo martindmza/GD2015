@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 
-namespace PagoElectronico.ABM_Rol
+namespace PagoElectronico.Login
 {
     public partial class Login : Form
     {
@@ -24,7 +24,7 @@ namespace PagoElectronico.ABM_Rol
 
         //---------------------------------------------------------------------------------------------------------------------
         private void button1_Click(object sender, EventArgs e){
-
+            
             String usuario = this.usuario.Text;
             String password = Conexion.hash(this.password.Text);
 
@@ -36,7 +36,7 @@ namespace PagoElectronico.ABM_Rol
                            "   AND  Usuarios_Password   ='"+password+"'                 ";
 
             DataTable usuarios;
-            Conexion cone   = new Conexion();
+            Conexion cone   = Conexion.getInstance();
             usuarios        = cone.consultar_datatable(query);
 
             if(usuarios.Rows.Count != 0)                                                //si encontró el usuario
@@ -44,7 +44,7 @@ namespace PagoElectronico.ABM_Rol
                 Usuario_Cod    = usuarios.Rows[0]["Usuarios_Cod_Usuario"].ToString();   //Guardo el cod de usuario
                 Usuario_Nombre = usuarios.Rows[0]["Usuarios_Usuario"].ToString();       //Guardo el nombre de usuario
                                                                                         //o se puede usar: resultado["Usuarios_Cod_Usuario"].ToString();
-                Frame frame = new Frame();
+                Frame.Frame frame = new Frame.Frame();
                 this.Hide();
                 frame.Show();
             }
@@ -57,5 +57,4 @@ namespace PagoElectronico.ABM_Rol
         //---------------------------------------------------------------------------------------------------------------------
     }
 }
-    }
-}
+

@@ -1,4 +1,4 @@
-﻿namespace PagoElectronico
+﻿namespace PagoElectronico.ABMUsuario
 {
     partial class Form1
     {
@@ -36,4 +36,3 @@
         #endregion
     }
 }
-

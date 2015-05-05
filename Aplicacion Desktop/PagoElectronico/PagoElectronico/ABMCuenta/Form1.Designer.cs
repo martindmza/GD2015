@@ -1,4 +1,4 @@
-﻿namespace PagoElectronico.Listados
+﻿namespace PagoElectronico.ABMCuenta
 {
     partial class Form1
     {

@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 
-namespace PagoElectronico.Depositos
+namespace PagoElectronico.ABMUsuario
 {
     public partial class Form1 : Form
     {

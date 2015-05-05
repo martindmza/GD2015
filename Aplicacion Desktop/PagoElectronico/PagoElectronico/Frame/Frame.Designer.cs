@@ -1,6 +1,6 @@
-﻿namespace PagoElectronico.Login
+﻿namespace PagoElectronico.Frame
 {
-    partial class Login
+    partial class Frame
     {
         /// <summary>
         /// Required designer variable.
@@ -28,70 +28,64 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.button1 = new System.Windows.Forms.Button();
-            this.usuario = new System.Windows.Forms.TextBox();
-            this.password = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
+            // menuStrip1
+            // 
+            this.menuStrip1.Location = new System.Drawing.Point(0, 0);
+            this.menuStrip1.Name = "menuStrip1";
+            this.menuStrip1.Size = new System.Drawing.Size(900, 24);
+            this.menuStrip1.TabIndex = 2;
+            this.menuStrip1.Text = "menuStrip1";
+            // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(167, 158);
+            this.button1.Location = new System.Drawing.Point(21, 0);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(98, 31);
-            this.button1.TabIndex = 0;
-            this.button1.Text = "Ingresar";
+            this.button1.Size = new System.Drawing.Size(75, 24);
+            this.button1.TabIndex = 4;
+            this.button1.Text = "Clientes";
             this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
-            // 
-            // usuario
-            // 
-            this.usuario.Location = new System.Drawing.Point(143, 57);
-            this.usuario.Name = "usuario";
-            this.usuario.Size = new System.Drawing.Size(202, 20);
-            this.usuario.TabIndex = 1;
-            this.usuario.Text = "";
-            // 
-            // password
-            // 
-            this.password.Location = new System.Drawing.Point(143, 92);
-            this.password.Name = "password";
-            this.password.PasswordChar = '*';
-            this.password.Size = new System.Drawing.Size(202, 20);
-            this.password.TabIndex = 2;
-            this.password.Text = "";
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(86, 60);
+            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label1.Location = new System.Drawing.Point(712, 4);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(46, 13);
-            this.label1.TabIndex = 3;
-            this.label1.Text = "Usuario:";
+            this.label1.Size = new System.Drawing.Size(45, 16);
+            this.label1.TabIndex = 6;
+            this.label1.Text = "label1";
             // 
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(68, 95);
+            this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label2.Location = new System.Drawing.Point(640, 4);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(64, 13);
-            this.label2.TabIndex = 4;
-            this.label2.Text = "Contraseña:";
+            this.label2.Size = new System.Drawing.Size(66, 16);
+            this.label2.TabIndex = 7;
+            this.label2.Text = "Usuario:";
             // 
-            // Login
+            // Frame
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(432, 201);
+            this.AutoSize = true;
+            this.ClientSize = new System.Drawing.Size(900, 508);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
-            this.Controls.Add(this.password);
-            this.Controls.Add(this.usuario);
             this.Controls.Add(this.button1);
-            this.Name = "Login";
-            this.Text = "Inicio de Sesión";
+            this.Controls.Add(this.menuStrip1);
+            this.IsMdiContainer = true;
+            this.MainMenuStrip = this.menuStrip1;
+            this.Name = "Frame";
+            this.Text = "Form1";
+            this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -99,10 +93,13 @@
 
         #endregion
 
+        private System.Windows.Forms.MenuStrip menuStrip1;
         private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.TextBox usuario;
-        private System.Windows.Forms.TextBox password;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
+
     }
 }
+
+
+
