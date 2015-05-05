@@ -26,5 +26,16 @@ namespace PagoElectronico.Properties
                 return defaultInstance;
             }
         }
+    [global::System.Configuration.ApplicationScopedSettingAttribute()]
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+    [global::System.Configuration.DefaultSettingValueAttribute("user id=gd; password=gd2015; server=.\\SQLSERVER2008;Trusted_Connection=yes; datab" +
+            "ase=GD1C2015;")]
+        public string Connection
+        {
+            get
+            {
+                return ((string)(this["Connection"]));
+            }
+        }
     }
 }

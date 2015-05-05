@@ -79,12 +79,23 @@
     <Compile Include="ConsultaSaldos\Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
+    <Compile Include="DAO\BaseDAO.cs" />
+    <Compile Include="DAO\Entidades\BaseEntidad.cs" />
+    <Compile Include="DAO\Entidades\Funcionalidad.cs" />
+    <Compile Include="DAO\Entidades\Rol.cs" />
+    <Compile Include="DAO\Entidades\RolFuncionalidad.cs" />
+    <Compile Include="DAO\Entidades\Usuario.cs" />
+    <Compile Include="DAO\FuncionalidadDAO.cs" />
+    <Compile Include="DAO\RolDAO.cs" />
+    <Compile Include="DAO\RolFuncionalidadDAO.cs" />
     <Compile Include="Frame\Frame.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Frame\Frame.Designer.cs">
       <DependentUpon>Frame.cs</DependentUpon>
     </Compile>
+    <Compile Include="Herramientas\Config.cs" />
+    <Compile Include="Herramientas\SqlConnector.cs" />
     <Compile Include="Listados\Form1.cs">
       <SubType>Form</SubType>
     </Compile>
