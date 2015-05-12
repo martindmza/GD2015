@@ -79,6 +79,11 @@
     <Compile Include="ConsultaSaldos\Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
+    <Compile Include="Controller\BaseModel.cs" />
+    <Compile Include="Controller\FuncionalidadModel.cs" />
+    <Compile Include="Controller\RolFuncionalidadModel.cs" />
+    <Compile Include="Controller\RolModel.cs" />
+    <Compile Include="Controller\UsuarioModel.cs" />
     <Compile Include="DAO\BaseDAO.cs" />
     <Compile Include="DAO\Entidades\BaseEntidad.cs" />
     <Compile Include="DAO\Entidades\Funcionalidad.cs" />
@@ -88,6 +93,7 @@
     <Compile Include="DAO\FuncionalidadDAO.cs" />
     <Compile Include="DAO\RolDAO.cs" />
     <Compile Include="DAO\RolFuncionalidadDAO.cs" />
+    <Compile Include="DAO\UsuarioDAO.cs" />
     <Compile Include="Frame\Frame.cs">
       <SubType>Form</SubType>
     </Compile>

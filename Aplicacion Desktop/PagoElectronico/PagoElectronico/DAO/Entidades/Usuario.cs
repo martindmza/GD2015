@@ -8,30 +8,23 @@ namespace PagoElectronico.Entidades
 {
     public class Usuario
     {
-
-        public decimal Id { get; set; }
+        public int Id { get; set; }
         public int IdRol { get; set; }
         public string Username { get; set; }
         public string PasswordEnc { get; set; }
         public bool Habilitado { get; set; }
-        public decimal FailedPwdAttempt { get; set; }
-
-
+        public decimal Intentos { get; set; }
+        public Rol Rol { get; set; }
+        private bool esAdministrador;
 
         public string PassEncriptada(string PasswordEnc)
         {
             return GetSHA256Encriptado(PasswordEnc);
         }
 
-        public Rol Rol { get; set; }
-
-        //public Tipo Tipo { get; set; }
-
-        private bool esAdministrador;
         public bool EsAdministrador
         {
             get { return esAdministrador; }
-
             set
             {
                 /* si es cliente es true */
@@ -39,7 +32,6 @@ namespace PagoElectronico.Entidades
                 {
                     esAdministrador = true;
                     esCliente = false;
-
                 }
             }
         }
@@ -55,12 +47,9 @@ namespace PagoElectronico.Entidades
                 {
                     esCliente = true;
                     esAdministrador = false;
-
                 }
-
             }
-
-        }//        public Cliente Cliente { get; set; }
+        }
 
 
         public Usuario()
@@ -139,6 +128,4 @@ namespace PagoElectronico.Entidades
             return this.Habilitado;
         }
     }
-
-
 }

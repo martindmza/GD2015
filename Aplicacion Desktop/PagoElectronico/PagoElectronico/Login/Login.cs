@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using PagoElectronico.Controller;
 
 namespace PagoElectronico.Login
 {
@@ -24,6 +25,37 @@ namespace PagoElectronico.Login
 
         //---------------------------------------------------------------------------------------------------------------------
         private void button1_Click(object sender, EventArgs e){
+            string Username = this.usuario.Text;
+            string password = this.password.Text;
+           
+            /*si loguea OK abro el principal*/
+            UsuarioModel uc = new UsuarioModel();
+            string sErr = uc.TryLogIn(Username, password);
+
+            if (sErr == "")
+            {
+                
+                Sesion.Usuario = uc.LeerDatos(Username);
+                AbrirForm1();
+            }
+            else
+            {
+                MessageBox.Show("La contraseña no es correcta");
+                cantidadVeces += 1;
+                if (cantidadVeces == 3)
+                {
+                     UsuarioController ucont = new UsuarioController();
+                     Usuario u = ucont.ModificarUsuario(Username);
+                  
+                     
+                }       
+            }
+                                 
+                    MessageBox.Show("Usuario Inhabilitado");
+                    cantidadVeces = 0;
+                }     
+ 
+ /***           
             
             String usuario = this.usuario.Text;
             String password = Conexion.hash(this.password.Text);
@@ -55,6 +87,7 @@ namespace PagoElectronico.Login
 
         }
         //---------------------------------------------------------------------------------------------------------------------
+  **/
     }
 }
 
