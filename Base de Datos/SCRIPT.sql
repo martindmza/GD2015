@@ -5,7 +5,6 @@
 USE [GD1C2015]
 GO
 
-
 ALTER TABLE REZAGADOS.FuncionalidadXRol DROP CONSTRAINT FK_FuncionalidadXRol_to_Rol;
 ALTER TABLE REZAGADOS.FuncionalidadXRol DROP CONSTRAINT FK_FuncionalidadXRol_to_Funcionalidad;
 ALTER TABLE REZAGADOS.UsuarioXRol DROP CONSTRAINT FK_UsuarioXRol_to_Rol;
@@ -36,51 +35,28 @@ ALTER TABLE REZAGADOS.Transaccion DROP CONSTRAINT FK_Transaccion_to_Tipo_Transac
 ALTER TABLE REZAGADOS.Transaccion DROP CONSTRAINT FK_Transaccion_to_Cuenta;
 ALTER TABLE REZAGADOS.Factura DROP CONSTRAINT FK_Factura_to_Usuario;
 
-if object_id('REZAGADOS.Rol') IS NOT NULL
 DROP TABLE REZAGADOS.Rol;
-if object_id('REZAGADOS.Funcionalidad') IS NOT NULL
 DROP TABLE REZAGADOS.Funcionalidad;
-if object_id('REZAGADOS.FuncionalidadXRol') IS NOT NULL
 DROP TABLE REZAGADOS.FuncionalidadXRol;
-if object_id('REZAGADOS.UsuarioXRol') IS NOT NULL
-DROP TABLE REZAGADOS.UsuarioXRol;
-if object_id('REZAGADOS.Cliente') IS NOT NULL
-DROP TABLE REZAGADOS.Cliente;
-if object_id('REZAGADOS.Administrador') IS NOT NULL
-DROP TABLE REZAGADOS.Administrador;
-if object_id('REZAGADOS.Retiro') IS NOT NULL
-DROP TABLE REZAGADOS.Retiro;
-if object_id('REZAGADOS.Cheque') IS NOT NULL
-DROP TABLE REZAGADOS.Cheque;
-if object_id('REZAGADOS.Banco') IS NOT NULL
-DROP TABLE REZAGADOS.Banco;
-if object_id('REZAGADOS.Transferencia') IS NOT NULL
-DROP TABLE REZAGADOS.Transferencia;
-if object_id('REZAGADOS.HistorialCuenta') IS NOT NULL
-DROP TABLE REZAGADOS.HistorialCuenta;
-if object_id('REZAGADOS.Moneda') IS NOT NULL
-DROP TABLE REZAGADOS.Moneda;
-if object_id('REZAGADOS.Transaccion') IS NOT NULL
-DROP TABLE REZAGADOS.Transaccion;
-if object_id('REZAGADOS.Usuario') IS NOT NULL
 DROP TABLE REZAGADOS.Usuario;
-if object_id('REZAGADOS.Tarjeta') IS NOT NULL
-DROP TABLE REZAGADOS.Tarjeta;
-if object_id('REZAGADOS.Factura') IS NOT NULL
-DROP TABLE REZAGADOS.Factura;
-if object_id('REZAGADOS.Pais') IS NOT NULL
-DROP TABLE REZAGADOS.Pais;
-if object_id('REZAGADOS.Cuenta') IS NOT NULL
-DROP TABLE REZAGADOS.Cuenta;
-if object_id('REZAGADOS.Deposito') IS NOT NULL
-DROP TABLE REZAGADOS.Deposito;
-if object_id('REZAGADOS.TipoDocumento') IS NOT NULL
+DROP TABLE REZAGADOS.UsuarioXRol;
+DROP TABLE REZAGADOS.Administrador;
+DROP TABLE REZAGADOS.Cliente;
 DROP TABLE REZAGADOS.TipoDocumento;
-if object_id('REZAGADOS.TipoTransaccion') IS NOT NULL
-DROP TABLE REZAGADOS.TipoTransaccion;
-if object_id('REZAGADOS.TipoCuenta') IS NOT NULL
+DROP TABLE REZAGADOS.Tarjeta;
+DROP TABLE REZAGADOS.Factura;
+DROP TABLE REZAGADOS.Pais;
+DROP TABLE REZAGADOS.Cuenta;
+DROP TABLE REZAGADOS.Deposito;
+DROP TABLE REZAGADOS.Retiro;
+DROP TABLE REZAGADOS.Cheque;
+DROP TABLE REZAGADOS.Banco;
 DROP TABLE REZAGADOS.TipoCuenta;
-
+DROP TABLE REZAGADOS.Transferencia;
+DROP TABLE REZAGADOS.HistorialCuenta;
+DROP TABLE REZAGADOS.Moneda;
+DROP TABLE REZAGADOS.TipoTransaccion;
+DROP TABLE REZAGADOS.Transaccion;
 
 USE [GD1C2015]
 GO
@@ -155,6 +131,7 @@ Id_Usuario numeric(18,0),
 Nombre varchar(255),
 Apellido varchar(255),
 Id_Tipo_Documento numeric(18,0),
+Nro_Documento numeric(18,0) UNIQUE,
 Id_Pais numeric(18,0),
 Direccion_Calle varchar(255),
 Direccion_Numero_Calle numeric(18,0),
@@ -465,12 +442,12 @@ WHERE R.Nombre = 'Cliente'
 
 -----------------------------------------CLIENTE-------------------------------------------------
 
-INSERT INTO REZAGADOS.Cliente (Id_Usuario, Nombre, Apellido, Id_Tipo_Documento, Id_Pais, Direccion_Calle, Direccion_Numero_Calle, Direccion_Piso, Direccion_Departamento, Fecha_Nacimiento, Mail, Localidad, Nacionalidad)
+INSERT INTO REZAGADOS.Cliente (Id_Usuario, Nombre, Apellido, Id_Tipo_Documento, Nro_Documento, Id_Pais, Direccion_Calle, Direccion_Numero_Calle, Direccion_Piso, Direccion_Departamento, Fecha_Nacimiento, Mail, Localidad, Nacionalidad)
 (
-SELECT U.Id_Usuario, G.Cli_Nombre, G.Cli_Apellido,T.Id_Tipo_Documento, P.Id_Pais, G.Cli_Dom_Calle, G.Cli_Dom_Nro, G.Cli_Dom_Piso, G.Cli_Dom_Depto, G.Cli_Fecha_Nac, G.Cli_Mail, 'Capital Federal', 'Argentina'
+SELECT U.Id_Usuario, G.Cli_Nombre, G.Cli_Apellido,T.Id_Tipo_Documento, G.Cli_Nro_Doc, P.Id_Pais, G.Cli_Dom_Calle, G.Cli_Dom_Nro, G.Cli_Dom_Piso, G.Cli_Dom_Depto, G.Cli_Fecha_Nac, G.Cli_Mail, 'Capital Federal', 'Argentina'
 FROM REZAGADOS.Usuario U, gd_esquema.Maestra G, REZAGADOS.TipoDocumento T, REZAGADOS.Pais P
 WHERE U.Nombre = G.Cli_Mail AND P.Id_Pais = G.Cli_Pais_Codigo AND T.Id_Tipo_Documento = G.Cli_Tipo_Doc_Cod
-GROUP BY U.Id_Usuario, G.Cli_Nombre, G.Cli_Apellido,T.Id_Tipo_Documento, P.Id_Pais, G.Cli_Dom_Calle, G.Cli_Dom_Nro, G.Cli_Dom_Piso, G.Cli_Dom_Depto, G.Cli_Fecha_Nac, G.Cli_Mail
+GROUP BY U.Id_Usuario, G.Cli_Nombre, G.Cli_Apellido,T.Id_Tipo_Documento, G.Cli_Nro_Doc, P.Id_Pais, G.Cli_Dom_Calle, G.Cli_Dom_Nro, G.Cli_Dom_Piso, G.Cli_Dom_Depto, G.Cli_Fecha_Nac, G.Cli_Mail
 )
 
 -----------------------------------------MONEDA---------------------------------------------------
@@ -555,5 +532,12 @@ SELECT Cheque_Numero, Retiro_Codigo, Banco_Cogido, Cheque_Fecha, Cheque_Importe
 FROM gd_esquema.Maestra
 WHERE Cheque_Numero IS NOT NULL
 
---¿¿HISTORIALCUENTA??
+----------------------------------------HISTORIALCUENTA-----------------------------------------------
+
+
+------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------
+--------------------------------------------PROCESOS--------------------------------------------------
+------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------
 
