@@ -1,10 +1,9 @@
 ------------------------------------------------------------------------------------
----------------------------------DROP-TERMPORAL-------------------------------------
+---------------------------------DROP TERMPORAL-------------------------------------
 ------------------------------------------------------------------------------------
 
 USE [GD1C2015]
 GO
-
 
 ALTER TABLE REZAGADOS.FuncionalidadXRol DROP CONSTRAINT FK_FuncionalidadXRol_to_Rol;
 ALTER TABLE REZAGADOS.FuncionalidadXRol DROP CONSTRAINT FK_FuncionalidadXRol_to_Funcionalidad;
@@ -31,56 +30,35 @@ ALTER TABLE REZAGADOS.Retiro DROP CONSTRAINT FK_Retiro_to_Moneda;
 ALTER TABLE REZAGADOS.Cheque DROP CONSTRAINT FK_Cheque_to_Retiro;
 ALTER TABLE REZAGADOS.Cheque DROP CONSTRAINT FK_Cheque_to_Banco;
 ALTER TABLE REZAGADOS.Cheque DROP CONSTRAINT FK_Cheque_to_Moneda;
-ALTER TABLE REZAGADOS.Transaccion DROP CONSTRAINT FK_Transaccion_to_Factura;
-ALTER TABLE REZAGADOS.Transaccion DROP CONSTRAINT FK_Transaccion_to_Tipo_Transaccion;
-ALTER TABLE REZAGADOS.Transaccion DROP CONSTRAINT FK_Transaccion_to_Cuenta;
+ALTER TABLE REZAGADOS.Item DROP CONSTRAINT FK_Item_to_Factura;
+ALTER TABLE REZAGADOS.Item DROP CONSTRAINT FK_Item_to_Tipo_Item;
+ALTER TABLE REZAGADOS.Item DROP CONSTRAINT FK_Item_to_Cuenta;
 ALTER TABLE REZAGADOS.Factura DROP CONSTRAINT FK_Factura_to_Usuario;
+ALTER TABLE REZAGADOS.HistorialUsuario DROP CONSTRAINT FK_Historial_Usuario_to_Usuario;
 
-if object_id('REZAGADOS.Rol') IS NOT NULL
 DROP TABLE REZAGADOS.Rol;
-if object_id('REZAGADOS.Funcionalidad') IS NOT NULL
 DROP TABLE REZAGADOS.Funcionalidad;
-if object_id('REZAGADOS.FuncionalidadXRol') IS NOT NULL
 DROP TABLE REZAGADOS.FuncionalidadXRol;
-if object_id('REZAGADOS.UsuarioXRol') IS NOT NULL
-DROP TABLE REZAGADOS.UsuarioXRol;
-if object_id('REZAGADOS.Cliente') IS NOT NULL
-DROP TABLE REZAGADOS.Cliente;
-if object_id('REZAGADOS.Administrador') IS NOT NULL
-DROP TABLE REZAGADOS.Administrador;
-if object_id('REZAGADOS.Retiro') IS NOT NULL
-DROP TABLE REZAGADOS.Retiro;
-if object_id('REZAGADOS.Cheque') IS NOT NULL
-DROP TABLE REZAGADOS.Cheque;
-if object_id('REZAGADOS.Banco') IS NOT NULL
-DROP TABLE REZAGADOS.Banco;
-if object_id('REZAGADOS.Transferencia') IS NOT NULL
-DROP TABLE REZAGADOS.Transferencia;
-if object_id('REZAGADOS.HistorialCuenta') IS NOT NULL
-DROP TABLE REZAGADOS.HistorialCuenta;
-if object_id('REZAGADOS.Moneda') IS NOT NULL
-DROP TABLE REZAGADOS.Moneda;
-if object_id('REZAGADOS.Transaccion') IS NOT NULL
-DROP TABLE REZAGADOS.Transaccion;
-if object_id('REZAGADOS.Usuario') IS NOT NULL
 DROP TABLE REZAGADOS.Usuario;
-if object_id('REZAGADOS.Tarjeta') IS NOT NULL
-DROP TABLE REZAGADOS.Tarjeta;
-if object_id('REZAGADOS.Factura') IS NOT NULL
-DROP TABLE REZAGADOS.Factura;
-if object_id('REZAGADOS.Pais') IS NOT NULL
-DROP TABLE REZAGADOS.Pais;
-if object_id('REZAGADOS.Cuenta') IS NOT NULL
-DROP TABLE REZAGADOS.Cuenta;
-if object_id('REZAGADOS.Deposito') IS NOT NULL
-DROP TABLE REZAGADOS.Deposito;
-if object_id('REZAGADOS.TipoDocumento') IS NOT NULL
+DROP TABLE REZAGADOS.UsuarioXRol;
+DROP TABLE REZAGADOS.Administrador;
+DROP TABLE REZAGADOS.Cliente;
 DROP TABLE REZAGADOS.TipoDocumento;
-if object_id('REZAGADOS.TipoTransaccion') IS NOT NULL
-DROP TABLE REZAGADOS.TipoTransaccion;
-if object_id('REZAGADOS.TipoCuenta') IS NOT NULL
+DROP TABLE REZAGADOS.Tarjeta;
+DROP TABLE REZAGADOS.Factura;
+DROP TABLE REZAGADOS.Pais;
+DROP TABLE REZAGADOS.Cuenta;
+DROP TABLE REZAGADOS.Deposito;
+DROP TABLE REZAGADOS.Retiro;
+DROP TABLE REZAGADOS.Cheque;
+DROP TABLE REZAGADOS.Banco;
 DROP TABLE REZAGADOS.TipoCuenta;
-
+DROP TABLE REZAGADOS.Transferencia;
+DROP TABLE REZAGADOS.HistorialCuenta;
+DROP TABLE REZAGADOS.Moneda;
+DROP TABLE REZAGADOS.TipoItem;
+DROP TABLE REZAGADOS.Item;
+DROP TABLE REZAGADOS.HistorialUsuario;
 
 USE [GD1C2015]
 GO
@@ -137,6 +115,13 @@ Respuesta varchar(255),
 Habilitada bit DEFAULT 1,);
 ALTER TABLE REZAGADOS.Usuario ADD CONSTRAINT PK_Id_Usuario PRIMARY KEY (Id_Usuario);
 
+CREATE TABLE REZAGADOS.HistorialUsuario(
+Id_Historial_Usuario numeric (18,0) IDENTITY(1,1) NOT NULL,
+Id_Usuario numeric (18,0),
+Fecha datetime,
+Contrasenia varchar(255),);
+ALTER TABLE REZAGADOS.HistorialUsuario ADD CONSTRAINT PK_Id_Historial_Usuario PRIMARY KEY (Id_Historial_Usuario);
+
 CREATE TABLE REZAGADOS.UsuarioXRol (
 Id_Usuario numeric(18,0) NOT NULL,
 Id_Rol numeric(18,0) NOT NULL,
@@ -155,6 +140,7 @@ Id_Usuario numeric(18,0),
 Nombre varchar(255),
 Apellido varchar(255),
 Id_Tipo_Documento numeric(18,0),
+Nro_Documento numeric(18,0) UNIQUE,
 Id_Pais numeric(18,0),
 Direccion_Calle varchar(255),
 Direccion_Numero_Calle numeric(18,0),
@@ -255,7 +241,7 @@ Fecha datetime,
 Id_Moneda numeric (18,0) DEFAULT 1,
 Importe numeric(18,2) NOT NULL,
 Num_Egreso numeric(18,2),
-Num_Transaccion numeric(18,2),);
+Num_Item numeric(18,2),);
 ALTER TABLE REZAGADOS.Cheque ADD CONSTRAINT PK_Id_Cheque PRIMARY KEY (Id_Cheque);
 
 CREATE TABLE REZAGADOS.Banco ( 
@@ -264,21 +250,21 @@ Nombre varchar(255),
 Direccion varchar(255) NOT NULL,);
 ALTER TABLE REZAGADOS.Banco ADD CONSTRAINT PK_Id_Banco PRIMARY KEY (Id_Banco);
 
-CREATE TABLE REZAGADOS.Transaccion (
-Id_Transaccion numeric(18,0) IDENTITY(1,1) NOT NULL,
+CREATE TABLE REZAGADOS.Item (
+Id_Item numeric(18,0) IDENTITY(1,1) NOT NULL,
 Id_Factura numeric(18,0) NOT NULL,
 Id_Cuenta numeric(18,0),
-Id_Tipo_Transaccion numeric(18,0),
+Id_Tipo_Item numeric(18,0),
 Importe numeric(18,2) NOT NULL, 
 Fecha datetime,
 Habilitada bit DEFAULT 1,);
-ALTER TABLE REZAGADOS.Transaccion ADD CONSTRAINT PK_Id_Transaccion PRIMARY KEY (Id_Transaccion);
+ALTER TABLE REZAGADOS.Item ADD CONSTRAINT PK_Id_Item PRIMARY KEY (Id_Item);
 
-CREATE TABLE REZAGADOS.TipoTransaccion(
-Id_Tipo_Transaccion numeric(18,0) IDENTITY(1,1) NOT NULL,
+CREATE TABLE REZAGADOS.TipoItem(
+Id_Tipo_Item numeric(18,0) IDENTITY(1,1) NOT NULL,
 Tipo varchar(255),
 Importe numeric(18,0) DEFAULT 0,);
-ALTER TABLE REZAGADOS.TipoTransaccion ADD CONSTRAINT PK_Id_Tipo_Transaccion PRIMARY KEY (Id_Tipo_Transaccion);
+ALTER TABLE REZAGADOS.TipoItem ADD CONSTRAINT PK_Id_Tipo_Item PRIMARY KEY (Id_Tipo_Item);
 
 CREATE TABLE REZAGADOS.Factura (
 Id_Factura numeric(18,0) NOT NULL,
@@ -367,16 +353,19 @@ FOREIGN KEY (Id_Banco) REFERENCES REZAGADOS.Banco (Id_Banco)
 ALTER TABLE REZAGADOS.Cheque ADD CONSTRAINT FK_Cheque_to_Moneda
 FOREIGN KEY (Id_Moneda) REFERENCES REZAGADOS.Moneda (Id_Moneda)
 ;
-ALTER TABLE REZAGADOS.Transaccion ADD CONSTRAINT FK_Transaccion_to_Factura
+ALTER TABLE REZAGADOS.Item ADD CONSTRAINT FK_Item_to_Factura
 FOREIGN KEY (Id_Factura) REFERENCES REZAGADOS.Factura (Id_Factura)
 ;
-ALTER TABLE REZAGADOS.Transaccion ADD CONSTRAINT FK_Transaccion_to_Tipo_Transaccion
-FOREIGN KEY (Id_Tipo_Transaccion) REFERENCES REZAGADOS.TipoTransaccion (Id_Tipo_Transaccion)
+ALTER TABLE REZAGADOS.Item ADD CONSTRAINT FK_Item_to_Tipo_Item
+FOREIGN KEY (Id_Tipo_Item) REFERENCES REZAGADOS.TipoItem (Id_Tipo_Item)
 ;
-ALTER TABLE REZAGADOS.Transaccion ADD CONSTRAINT FK_Transaccion_to_Cuenta
+ALTER TABLE REZAGADOS.Item ADD CONSTRAINT FK_Item_to_Cuenta
 FOREIGN KEY (Id_Cuenta) REFERENCES REZAGADOS.Cuenta (Id_Cuenta)
 ;
 ALTER TABLE REZAGADOS.Factura ADD CONSTRAINT FK_Factura_to_Usuario
+FOREIGN KEY (Id_Usuario) REFERENCES REZAGADOS.Usuario (Id_Usuario)
+;
+ALTER TABLE REZAGADOS.HistorialUsuario ADD CONSTRAINT FK_Historial_Usuario_to_Usuario
 FOREIGN KEY (Id_Usuario) REFERENCES REZAGADOS.Usuario (Id_Usuario)
 ;
 
@@ -385,6 +374,9 @@ FOREIGN KEY (Id_Usuario) REFERENCES REZAGADOS.Usuario (Id_Usuario)
 ------------------------------------MIGRACION----------------------------------------
 -------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------
+
+DECLARE @fecha datetime
+SET @fecha = getdate()
 
 ---------------------------------------PAIS------------------------------------------
 
@@ -419,7 +411,7 @@ VALUES ('Administrador'),('Cliente')
 --------------------------------------FUNCIONALIDAD---------------------------------------------
 
 INSERT INTO REZAGADOS.Funcionalidad (Nombre)
-VALUES ('Login y Seguridad'), ('ABM de Rol'), ('Registro de Usuario'), ('ABM de Cliente'), ('ABM de Cuenta'), ('Deposito'), ('Retiro de Efectivo'), ('Transferencias entre cuentas'), ('Facturación de Costos'), ('Consulta de saldos'), ('Listado Estadístico')
+VALUES ('ABM de Rol'), ('Registro de Usuario'), ('ABM de Cliente'), ('ABM de Cuenta'), ('Deposito'), ('Retiro de Efectivo'), ('Transferencias entre cuentas'), ('Facturación de Costos'), ('Consulta de saldos'), ('Listado Estadístico')
 
 -------------------------------------ROLXFUNCIONALIDAD------------------------------------------
 
@@ -438,12 +430,12 @@ WHERE	R.Nombre = 'Cliente' AND
 ----------------------LA-PASS-SERA-REZAGADOS-ENCRIPTADA-EN-SHA-256---------------------------------
 
 INSERT INTO REZAGADOS.Usuario (Nombre, Contrasenia, Fecha_Creacion, Fecha_Ult_Modif)
-SELECT DISTINCT Cli_Mail, 'd19501ed8c9de057fe8370035686d5e7a9686c2fddb68b57e1668e21917b3e87', GETDATE(), GETDATE()
+SELECT DISTINCT Cli_Mail, 'd19501ed8c9de057fe8370035686d5e7a9686c2fddb68b57e1668e21917b3e87', @fecha, @fecha
 FROM gd_esquema.Maestra
 WHERE Cli_Mail IS NOT NULL
 
 INSERT INTO REZAGADOS.Usuario (Nombre, Contrasenia, Fecha_Creacion, Fecha_Ult_Modif)
-VALUES ('admin','e6b87050bfcb8143fcb8db0170a4dc9ed00d904ddd3e2a4ad1b1e8dc0fdc9be7', GETDATE(), GETDATE()) 
+VALUES ('admin','e6b87050bfcb8143fcb8db0170a4dc9ed00d904ddd3e2a4ad1b1e8dc0fdc9be7', @fecha, @fecha)
 
 ----------------------------------------ADMINISTRADOR-----------------------------------------------
 
@@ -465,12 +457,12 @@ WHERE R.Nombre = 'Cliente'
 
 -----------------------------------------CLIENTE-------------------------------------------------
 
-INSERT INTO REZAGADOS.Cliente (Id_Usuario, Nombre, Apellido, Id_Tipo_Documento, Id_Pais, Direccion_Calle, Direccion_Numero_Calle, Direccion_Piso, Direccion_Departamento, Fecha_Nacimiento, Mail, Localidad, Nacionalidad)
+INSERT INTO REZAGADOS.Cliente (Id_Usuario, Nombre, Apellido, Id_Tipo_Documento, Nro_Documento, Id_Pais, Direccion_Calle, Direccion_Numero_Calle, Direccion_Piso, Direccion_Departamento, Fecha_Nacimiento, Mail, Localidad, Nacionalidad)
 (
-SELECT U.Id_Usuario, G.Cli_Nombre, G.Cli_Apellido,T.Id_Tipo_Documento, P.Id_Pais, G.Cli_Dom_Calle, G.Cli_Dom_Nro, G.Cli_Dom_Piso, G.Cli_Dom_Depto, G.Cli_Fecha_Nac, G.Cli_Mail, 'Capital Federal', 'Argentina'
+SELECT U.Id_Usuario, G.Cli_Nombre, G.Cli_Apellido,T.Id_Tipo_Documento, G.Cli_Nro_Doc, P.Id_Pais, G.Cli_Dom_Calle, G.Cli_Dom_Nro, G.Cli_Dom_Piso, G.Cli_Dom_Depto, G.Cli_Fecha_Nac, G.Cli_Mail, 'Capital Federal', 'Argentina'
 FROM REZAGADOS.Usuario U, gd_esquema.Maestra G, REZAGADOS.TipoDocumento T, REZAGADOS.Pais P
 WHERE U.Nombre = G.Cli_Mail AND P.Id_Pais = G.Cli_Pais_Codigo AND T.Id_Tipo_Documento = G.Cli_Tipo_Doc_Cod
-GROUP BY U.Id_Usuario, G.Cli_Nombre, G.Cli_Apellido,T.Id_Tipo_Documento, P.Id_Pais, G.Cli_Dom_Calle, G.Cli_Dom_Nro, G.Cli_Dom_Piso, G.Cli_Dom_Depto, G.Cli_Fecha_Nac, G.Cli_Mail
+GROUP BY U.Id_Usuario, G.Cli_Nombre, G.Cli_Apellido,T.Id_Tipo_Documento, G.Cli_Nro_Doc, P.Id_Pais, G.Cli_Dom_Calle, G.Cli_Dom_Nro, G.Cli_Dom_Piso, G.Cli_Dom_Depto, G.Cli_Fecha_Nac, G.Cli_Mail
 )
 
 -----------------------------------------MONEDA---------------------------------------------------
@@ -507,9 +499,9 @@ GROUP BY u.Id_Usuario, Tarjeta_Numero, Tarjeta_Emisor_Descripcion, Tarjeta_Codig
 INSERT INTO REZAGADOS.TipoCuenta (Categoria)
 VALUES ('Oro'), ('Plata'), ('Bronce'), ('Gratis')
 
--------------------------------------TIPOTRANSACCION-----------------------------------------------
+--------------------------------------------TIPOITEM-----------------------------------------------
 
-INSERT INTO REZAGADOS.TipoTransaccion (Tipo)
+INSERT INTO REZAGADOS.TipoItem (Tipo)
 VALUES ('Comisión por transferencia.'), ('Creacion de cuenta'), ('Retiro'), ('Cheque')
 
 ------------------------------------------FACUTRA--------------------------------------------------
@@ -519,11 +511,11 @@ SELECT g.Factura_Numero, u.Id_Usuario, g.Factura_Fecha
 FROM gd_esquema.Maestra g, REZAGADOS.Usuario u
 WHERE u.Nombre = g.Cli_Mail AND g.Factura_Numero IS NOT NULL
 
------------------------------------------TRANSACCION--------------------------------------------------
+--------------------------------------------ITEM----------------------------------------------------
 
-INSERT INTO REZAGADOS.Transaccion (Id_Factura, Id_Cuenta, Id_Tipo_Transaccion, Importe, Fecha)
-SELECT f.Id_Factura, c.Id_Cuenta, t.Id_Tipo_Transaccion, g.Trans_Importe, g.Transf_Fecha
-FROM gd_esquema.Maestra g, REZAGADOS.Factura f, REZAGADOS.Usuario u, REZAGADOS.Cuenta c, REZAGADOS.TipoTransaccion t
+INSERT INTO REZAGADOS.Item (Id_Factura, Id_Cuenta, Id_Tipo_Item, Importe, Fecha)
+SELECT f.Id_Factura, c.Id_Cuenta, t.Id_Tipo_Item, g.Trans_Importe, g.Transf_Fecha
+FROM gd_esquema.Maestra g, REZAGADOS.Factura f, REZAGADOS.Usuario u, REZAGADOS.Cuenta c, REZAGADOS.TipoItem t
 WHERE f.Id_Factura = g.Factura_Numero AND u.Nombre = g.Cli_Mail AND c.Id_Usuario = u.Id_Usuario AND t.Tipo = g.Item_Factura_Descr
 
 --------------------------------------------RETIRO----------------------------------------------------
@@ -555,5 +547,12 @@ SELECT Cheque_Numero, Retiro_Codigo, Banco_Cogido, Cheque_Fecha, Cheque_Importe
 FROM gd_esquema.Maestra
 WHERE Cheque_Numero IS NOT NULL
 
---¿¿HISTORIALCUENTA??
+----------------------------------------HISTORIALCUENTA-----------------------------------------------
+----------------------------------------HISTORIALUSUARIO-----------------------------------------------
+
+------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------
+--------------------------------------------PROCESOS--------------------------------------------------
+------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------
 
