@@ -55,6 +55,7 @@ namespace PagoElectronico.DAO
             u.Rol = dbr.Buscar((int)(dt.Rows[0]["IdRol"]));
             return u;
         }
+
         public Usuario Buscar(string userName)
         {
             Usuario u = new Usuario();
@@ -71,6 +72,8 @@ namespace PagoElectronico.DAO
 
             if (dt.Rows.Count > 0)
                 u = this._CargarTodo(dt);
+
+
             else
                 return null;
 
@@ -85,7 +88,7 @@ namespace PagoElectronico.DAO
         {
             DataTable dt = new DataTable();
 
-            SqlCommand command = InitializeConnection("Usuario_Validar");
+            SqlCommand command = InitializeConnection("Login");
 
             command.Parameters.Add("Username", System.Data.SqlDbType.NVarChar, 50).Value = u;
             command.Parameters.Add("PasswordEnc", System.Data.SqlDbType.NVarChar, 100).Value = new Usuario().PassEncriptada(p);

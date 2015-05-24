@@ -79,11 +79,11 @@
     <Compile Include="ConsultaSaldos\Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
-    <Compile Include="Controller\BaseModel.cs" />
-    <Compile Include="Controller\FuncionalidadModel.cs" />
-    <Compile Include="Controller\RolFuncionalidadModel.cs" />
-    <Compile Include="Controller\RolModel.cs" />
-    <Compile Include="Controller\UsuarioModel.cs" />
+    <Compile Include="Model\BaseModel.cs" />
+    <Compile Include="Model\FuncionalidadModel.cs" />
+    <Compile Include="Model\RolFuncionalidadModel.cs" />
+    <Compile Include="Model\RolModel.cs" />
+    <Compile Include="Model\UsuarioModel.cs" />
     <Compile Include="DAO\BaseDAO.cs" />
     <Compile Include="DAO\Entidades\BaseEntidad.cs" />
     <Compile Include="DAO\Entidades\Funcionalidad.cs" />
@@ -100,8 +100,8 @@
     <Compile Include="Frame\Frame.Designer.cs">
       <DependentUpon>Frame.cs</DependentUpon>
     </Compile>
-    <Compile Include="Herramientas\Config.cs" />
-    <Compile Include="Herramientas\SqlConnector.cs" />
+    <Compile Include="Conexion\Config.cs" />
+    <Compile Include="Conexion\SqlConnector.cs" />
     <Compile Include="Listados\Form1.cs">
       <SubType>Form</SubType>
     </Compile>
