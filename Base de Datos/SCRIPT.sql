@@ -510,7 +510,8 @@ INSERT INTO REZAGADOS.Factura (Id_Factura, Id_Usuario, Fecha)
 SELECT g.Factura_Numero, u.Id_Usuario, g.Factura_Fecha
 FROM gd_esquema.Maestra g, REZAGADOS.Usuario u
 WHERE u.Nombre = g.Cli_Mail AND g.Factura_Numero IS NOT NULL
-
+GROUP BY g.Factura_Numero, u.Id_Usuario, g.Factura_Fecha
+--FIJARSE ERROR SIN GROUP BY
 --------------------------------------------ITEM----------------------------------------------------
 
 INSERT INTO REZAGADOS.Item (Id_Factura, Id_Cuenta, Id_Tipo_Item, Importe, Fecha)
@@ -524,7 +525,8 @@ INSERT INTO REZAGADOS.Retiro (Id_Retiro, Id_Cuenta, Fecha, Importe)
 SELECT g.Retiro_Codigo, c.Id_Cuenta, g.Retiro_Fecha, g.Retiro_Importe
 FROM gd_esquema.Maestra g, REZAGADOS.Cuenta c
 WHERE g.Retiro_Codigo IS NOT NULL AND c.Id_Cuenta = g.Cuenta_Numero
-
+GROUP BY g.Retiro_Codigo, c.Id_Cuenta, g.Retiro_Fecha, g.Retiro_Importe
+--ERROR GROUP
 ----------------------------------------TRANSFERENCIA-------------------------------------------------
 
 INSERT INTO REZAGADOS.Transferencia (Id_Cuenta_Emi, Id_Cuenta_Dest, Fecha, Importe)
@@ -546,7 +548,8 @@ INSERT INTO REZAGADOS.Cheque (Id_Cheque, Id_Retiro, Id_Banco, Fecha, Importe)
 SELECT Cheque_Numero, Retiro_Codigo, Banco_Cogido, Cheque_Fecha, Cheque_Importe
 FROM gd_esquema.Maestra
 WHERE Cheque_Numero IS NOT NULL
-
+GROUP BY Cheque_Numero, Retiro_Codigo, Banco_Cogido, Cheque_Fecha, Cheque_Importe
+--ERROR GROUP
 ----------------------------------------HISTORIALCUENTA-----------------------------------------------
 ----------------------------------------HISTORIALUSUARIO-----------------------------------------------
 
