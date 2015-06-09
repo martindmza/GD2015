@@ -60,6 +60,30 @@ DROP TABLE REZAGADOS.TipoItem;
 DROP TABLE REZAGADOS.Item;
 DROP TABLE REZAGADOS.HistorialUsuario;
 
+DROP PROCEDURE REZAGADOS.Crear_Cliente;
+DROP PROCEDURE REZAGADOS.Modificar_Cliente;
+DROP PROCEDURE REZAGADOS.Eliminar_Cliente;
+DROP PROCEDURE REZAGADOS.Alta_Usuario;
+DROP PROCEDURE REZAGADOS.Baja_Usuario;
+DROP PROCEDURE REZAGADOS.Alta_Cliente;
+DROP PROCEDURE REZAGADOS.Baja_Cliente;
+DROP PROCEDURE REZAGADOS.Crear_Rol;
+DROP PROCEDURE REZAGADOS.Borrar_Rol;
+DROP PROCEDURE REZAGADOS.Login;
+DROP PROCEDURE REZAGADOS.Cambio_Contrasenia;
+DROP PROCEDURE REZAGADOS.Baja_Rol;
+DROP PROCEDURE REZAGADOS.Alta_Rol;
+DROP PROCEDURE REZAGADOS.Modificar_Nombre_Rol;
+DROP PROCEDURE REZAGADOS.Modificar_Funcionalidad;
+DROP PROCEDURE REZAGADOS.Baja_Funcionalidad;
+DROP PROCEDURE REZAGADOS.Desasignar_Rol;
+DROP PROCEDURE REZAGADOS.Agregar_Funcionalidad;
+DROP PROCEDURE REZAGADOS.Asignar_Rol;
+DROP PROCEDURE REZAGADOS.Baja_Cuenta;
+DROP PROCEDURE REZAGADOS.Alta_Cuenta;
+DROP PROCEDURE REZAGADOS.Crear_Cuenta;
+DROP PROCEDURE REZAGADOS.Modificar_Costo_Cuenta;
+
 USE [GD1C2015]
 GO
 DROP SCHEMA [REZAGADOS]
@@ -444,17 +468,6 @@ SELECT DISTINCT Id_Usuario
 FROM REZAGADOS.Usuario
 WHERE Nombre = 'admin' 
 
------------------------------------------USUARIOXROL--------------------------------------------------
-
-INSERT INTO REZAGADOS.UsuarioXRol(Id_Usuario,Id_Rol)
-SELECT A.Id_Usuario, R.Id_Rol 
-FROM REZAGADOS.Administrador A, REZAGADOS.Rol R
-WHERE R.Nombre = 'Administrador' 
-UNION
-SELECT C.Id_Usuario, R.Id_Rol 
-FROM REZAGADOS.Cliente C, REZAGADOS.Rol R
-WHERE R.Nombre = 'Cliente'
-
 -----------------------------------------CLIENTE-------------------------------------------------
 
 INSERT INTO REZAGADOS.Cliente (Id_Usuario, Nombre, Apellido, Id_Tipo_Documento, Nro_Documento, Id_Pais, Direccion_Calle, Direccion_Numero_Calle, Direccion_Piso, Direccion_Departamento, Fecha_Nacimiento, Mail, Localidad, Nacionalidad)
@@ -464,6 +477,17 @@ FROM REZAGADOS.Usuario U, gd_esquema.Maestra G, REZAGADOS.TipoDocumento T, REZAG
 WHERE U.Nombre = G.Cli_Mail AND P.Id_Pais = G.Cli_Pais_Codigo AND T.Id_Tipo_Documento = G.Cli_Tipo_Doc_Cod
 GROUP BY U.Id_Usuario, G.Cli_Nombre, G.Cli_Apellido,T.Id_Tipo_Documento, G.Cli_Nro_Doc, P.Id_Pais, G.Cli_Dom_Calle, G.Cli_Dom_Nro, G.Cli_Dom_Piso, G.Cli_Dom_Depto, G.Cli_Fecha_Nac, G.Cli_Mail
 )
+
+-----------------------------------------USUARIOXROL--------------------------------------------------
+
+INSERT INTO REZAGADOS.UsuarioXRol(Id_Usuario,Id_Rol)
+SELECT C.Id_Usuario, R.Id_Rol 
+FROM REZAGADOS.Cliente C, REZAGADOS.Rol R
+WHERE R.Nombre = 'Cliente'
+UNION
+SELECT A.Id_Usuario, R.Id_Rol 
+FROM REZAGADOS.Administrador A, REZAGADOS.Rol R
+WHERE R.Nombre = 'Administrador' 
 
 -----------------------------------------MONEDA---------------------------------------------------
 
@@ -496,8 +520,8 @@ GROUP BY u.Id_Usuario, Tarjeta_Numero, Tarjeta_Emisor_Descripcion, Tarjeta_Codig
 
 ----------------------------------------TIPOCUENTA------------------------------------------------
 
-INSERT INTO REZAGADOS.TipoCuenta (Categoria)
-VALUES ('Oro'), ('Plata'), ('Bronce'), ('Gratis')
+INSERT INTO REZAGADOS.TipoCuenta (Categoria, Costo, Dias_Vigencia)
+VALUES ('Oro', 10, 10), ('Plata', 5, 20), ('Bronce', 5, 30), ('Gratis', 0, 0)
 
 --------------------------------------------TIPOITEM-----------------------------------------------
 
@@ -510,7 +534,8 @@ INSERT INTO REZAGADOS.Factura (Id_Factura, Id_Usuario, Fecha)
 SELECT g.Factura_Numero, u.Id_Usuario, g.Factura_Fecha
 FROM gd_esquema.Maestra g, REZAGADOS.Usuario u
 WHERE u.Nombre = g.Cli_Mail AND g.Factura_Numero IS NOT NULL
-
+GROUP BY g.Factura_Numero, u.Id_Usuario, g.Factura_Fecha
+--FIJARSE ERROR SIN GROUP BY
 --------------------------------------------ITEM----------------------------------------------------
 
 INSERT INTO REZAGADOS.Item (Id_Factura, Id_Cuenta, Id_Tipo_Item, Importe, Fecha)
@@ -524,7 +549,8 @@ INSERT INTO REZAGADOS.Retiro (Id_Retiro, Id_Cuenta, Fecha, Importe)
 SELECT g.Retiro_Codigo, c.Id_Cuenta, g.Retiro_Fecha, g.Retiro_Importe
 FROM gd_esquema.Maestra g, REZAGADOS.Cuenta c
 WHERE g.Retiro_Codigo IS NOT NULL AND c.Id_Cuenta = g.Cuenta_Numero
-
+GROUP BY g.Retiro_Codigo, c.Id_Cuenta, g.Retiro_Fecha, g.Retiro_Importe
+--ERROR GROUP
 ----------------------------------------TRANSFERENCIA-------------------------------------------------
 
 INSERT INTO REZAGADOS.Transferencia (Id_Cuenta_Emi, Id_Cuenta_Dest, Fecha, Importe)
@@ -546,7 +572,10 @@ INSERT INTO REZAGADOS.Cheque (Id_Cheque, Id_Retiro, Id_Banco, Fecha, Importe)
 SELECT Cheque_Numero, Retiro_Codigo, Banco_Cogido, Cheque_Fecha, Cheque_Importe
 FROM gd_esquema.Maestra
 WHERE Cheque_Numero IS NOT NULL
+GROUP BY Cheque_Numero, Retiro_Codigo, Banco_Cogido, Cheque_Fecha, Cheque_Importe
 
+
+--ERROR GROUP
 ----------------------------------------HISTORIALCUENTA-----------------------------------------------
 ----------------------------------------HISTORIALUSUARIO-----------------------------------------------
 
@@ -556,3 +585,425 @@ WHERE Cheque_Numero IS NOT NULL
 ------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------
 
+-----------------------------------------CREAR CLIENTE------------------------------------------------
+
+USE [GD1C2015]
+GO
+CREATE PROCEDURE REZAGADOS.Crear_Cliente(
+					@Nombre VARCHAR(255),
+					@Apellido VARCHAR(255),
+					@Tipo_Documento NUMERIC(18, 0),
+					@Nro_Documento NUMERIC(18, 0),
+					@Pais VARCHAR(255),
+					@Direccion_Calle VARCHAR (255),
+					@Direccion_Numero_Calle NUMERIC(18, 0),
+					@Direccion_Piso NUMERIC(18,0),
+					@Direccion_Departamento VARCHAR(10),
+					@Fecha_Nacimiento DATETIME,
+					@Mail VARCHAR(255),
+					@Localidad VARCHAR(255),
+					@Nacionalidad VARCHAR(255),
+					@Username VARCHAR (255),
+					@Password VARCHAR(255),
+					@Resultado VARCHAR(255) OUTPUT)
+AS 
+BEGIN TRY
+BEGIN TRANSACTION
+BEGIN
+IF (EXISTS(SELECT Mail FROM REZAGADOS.Cliente  WHERE @Mail = Mail) )
+	BEGIN
+	SET @Resultado = 'El e-mail ya existe.'
+	END
+ELSE
+BEGIN
+	INSERT INTO REZAGADOS.Usuario (Nombre, Contrasenia) VALUES (@Username, @Password)
+	DECLARE @Id_Usuario NUMERIC(18,0)
+	DECLARE @Id_Tipo_Documento NUMERIC(18,0)
+	DECLARE @Id_Pais NUMERIC (18,0)
+	SET @Id_Pais = (SELECT DISTINCT Id_Pais FROM REZAGADOS.Pais WHERE REZAGADOS.Pais.Descripcion = @Pais)
+	SET @Id_Tipo_Documento = (SELECT DISTINCT Id_Tipo_Documento FROM REZAGADOS.TipoDocumento WHERE REZAGADOS.TipoDocumento.Descripcion = @Tipo_Documento)
+	SET @Id_Usuario = (SELECT DISTINCT Id_Usuario FROM REZAGADOS.Usuario WHERE REZAGADOS.Usuario.Nombre = @Username)
+	INSERT INTO REZAGADOS.Cliente (Id_Usuario, Nombre, Apellido, Id_Tipo_Documento, Nro_Documento, Id_Pais, Direccion_Calle, Direccion_Numero_Calle, Direccion_Piso, Direccion_Departamento, Fecha_Nacimiento, Mail, Localidad, Nacionalidad)
+	VALUES (@Id_Usuario, @Nombre, @Apellido, @Id_Tipo_Documento, @Nro_Documento, @Id_Pais, @Direccion_Calle, @Direccion_Numero_Calle, @Direccion_Piso, @Direccion_Departamento, @Fecha_Nacimiento, @Mail, @Localidad, @Nacionalidad) 		
+	INSERT INTO REZAGADOS.UsuarioXRol(Id_Usuario, Id_Rol) VALUES (@Id_Usuario, 2)			
+	SET @Resultado = 'Los datos se guardaron exitosamente!'
+	END
+END
+COMMIT TRANSACTION
+END TRY
+BEGIN CATCH
+ROLLBACK TRANSACTION
+END CATCH
+GO
+
+-----------------------------------------MODIFICAR CLIENTE------------------------------------------------
+
+USE [GD1C2015]
+GO
+CREATE PROCEDURE REZAGADOS.Modificar_Cliente (
+								@Id_Cliente NUMERIC(18,0),
+								@Direccion_Calle VARCHAR (255),
+								@Direccion_Numero_Calle NUMERIC(18, 0),
+								@Direccion_Piso NUMERIC(18,0),
+								@Direccion_Departamento VARCHAR(10),
+								@Fecha_Nacimiento DATETIME,
+								@Mail VARCHAR(255),
+								@Localidad VARCHAR(255),
+								@Nacionalidad VARCHAR(255),
+								@Resultado VARCHAR(255) OUTPUT)
+AS 
+BEGIN
+	IF (EXISTS(SELECT Mail FROM REZAGADOS.Cliente  WHERE @Mail = Mail) )
+	BEGIN
+	SET @Resultado = 'El e-mail ya existe.'
+	END
+ELSE
+	BEGIN
+	UPDATE REZAGADOS.Cliente
+	SET
+	[Direccion_Calle] = @Direccion_Calle,
+	[Direccion_Numero_Calle] = @Direccion_Numero_Calle,
+	[Direccion_Piso] = @Direccion_Piso,
+	[Direccion_Departamento] = @Direccion_Departamento,
+	[Fecha_Nacimiento] = @Fecha_Nacimiento,
+	[Mail] = @Mail,
+	[Localidad] = @Localidad,
+	[Nacionalidad] = @Nacionalidad
+	WHERE
+   [Id_Cliente] = @Id_Cliente
+  SET @Resultado = 'El cliente ha sido modificado!'
+  END
+END
+GO
+
+-----------------------------------------ELIMINAR CLIENTE------------------------------------------------
+
+USE [GD1C2015]
+GO
+CREATE PROCEDURE REZAGADOS.Eliminar_Cliente  (@Id_Cliente NUMERIC(18,0))
+AS
+	BEGIN
+		DECLARE @Id_Usuario NUMERIC(18,0) = (SELECT Id_Usuario FROM REZAGADOS.Cliente WHERE Id_Cliente = @Id_Cliente)
+		UPDATE REZAGADOS.Cliente SET Habilitada=0 WHERE Id_Usuario=@Id_Usuario
+	END
+GO
+
+-----------------------------------------ALTA USUARIO------------------------------------------------
+
+USE [GD1C2015]
+GO
+CREATE PROCEDURE REZAGADOS.Alta_Usuario (@Nombre VARCHAR(255), @Respuesta VARCHAR(255) OUTPUT)
+AS
+	BEGIN
+		DECLARE @Id_Usuario NUMERIC(18,0) = (SELECT Id_Usuario FROM REZAGADOS.Usuario WHERE Nombre = @Nombre)
+		DECLARE @Contrasenia VARCHAR(255) = (SELECT Contrasenia FROM REZAGADOS.Usuario WHERE Nombre = @Nombre)
+		UPDATE REZAGADOS.Usuario SET Habilitada=1 WHERE Id_Usuario=@Id_Usuario
+		UPDATE REZAGADOS.Usuario SET Cantidad_Intentos_Fallidos = 0 WHERE Id_Usuario = @Id_Usuario
+		SET @Respuesta = 'Usuario dado de alta, contraseña: ' + (@Contrasenia);
+		END
+GO
+
+-----------------------------------------BAJA USUARIO------------------------------------------------
+
+USE [GD1C2015]
+GO
+CREATE PROCEDURE REZAGADOS.Baja_Usuario (@Nombre varchar(255))
+AS
+	BEGIN
+		DECLARE @Id_Usuario NUMERIC(18,0) = (SELECT Id_Usuario FROM REZAGADOS.Usuario WHERE Nombre = @Nombre)
+		UPDATE REZAGADOS.Usuario SET Habilitada=0 WHERE Id_Usuario=@Id_Usuario
+	END
+GO
+
+-----------------------------------------ALTA CLIENTE------------------------------------------------
+
+USE [GD1C2015]
+GO
+CREATE PROCEDURE REZAGADOS.Alta_Cliente (@Id_Cliente varchar(255))
+AS
+	BEGIN
+		DECLARE @Id_Usuario NUMERIC(18,0) = (SELECT Id_Usuario FROM REZAGADOS.Cliente WHERE Id_Cliente = CAST(@Id_Cliente AS NUMERIC(18,0)))
+		UPDATE REZAGADOS.Cliente SET Habilitada=1 WHERE Id_Usuario=@Id_Usuario
+	END
+GO
+
+-----------------------------------------BAJA CLIENTE------------------------------------------------
+
+USE [GD1C2015]
+GO
+CREATE PROCEDURE REZAGADOS.Baja_Cliente (@Id_Cliente varchar(255))
+AS
+	BEGIN
+		DECLARE @Id_Usuario NUMERIC(18,0) = (SELECT Id_Usuario FROM REZAGADOS.Cliente WHERE Id_Cliente = CAST(@Id_Cliente AS NUMERIC(18,0)))
+		UPDATE REZAGADOS.Cliente SET Habilitada=0 WHERE Id_Usuario=@Id_Usuario
+	END
+GO
+
+-----------------------------------------CREAR ROL------------------------------------------------
+
+USE [GD1C2015]
+GO
+CREATE PROCEDURE REZAGADOS.Crear_Rol(@Nombre_Rol NVARCHAR(255), @Respuesta INT OUTPUT)
+AS
+BEGIN
+	IF EXISTS(SELECT * FROM REZAGADOS.Rol WHERE Rol.Nombre = @Nombre_Rol)
+	BEGIN
+		SET @Respuesta = -1
+	END
+	ELSE
+	BEGIN
+		INSERT INTO REZAGADOS.Rol VALUES (@Nombre_Rol, 1)
+		SET @Respuesta = (SELECT Id_Rol FROM REZAGADOS.Rol WHERE Rol.Nombre = @Nombre_Rol)
+	END
+END
+GO
+
+-----------------------------------------BORRAR ROL------------------------------------------------
+
+USE [GD1C2015]
+GO
+CREATE PROCEDURE REZAGADOS.Borrar_Rol(@Nombre_Rol NVARCHAR(255), @Respuesta INT OUTPUT)
+AS
+BEGIN
+	IF NOT EXISTS(SELECT * FROM REZAGADOS.Rol WHERE Rol.Nombre = @Nombre_Rol)
+	BEGIN
+		SET @Respuesta = -1
+	END
+	ELSE
+	BEGIN
+		DELETE FROM REZAGADOS.Rol WHERE Nombre=@Nombre_Rol
+		SET @Respuesta = 1
+	END
+END
+GO
+
+-----------------------------------------LOGIN------------------------------------------------
+
+USE [GD1C2015]
+GO
+CREATE PROCEDURE REZAGADOS.Login (@Usuario NVARCHAR(255), @Pass NVARCHAR(255), @Respuesta NVARCHAR(255) OUTPUT, @Respuesta_Contra NVARCHAR(255) OUTPUT)
+AS 
+BEGIN                  
+DECLARE @Existe_Usuario INT = (SELECT COUNT(*) FROM REZAGADOS.Usuario WHERE Nombre = @Usuario);                                     
+IF (@Existe_Usuario = 1)
+BEGIN             
+DECLARE @Habilitado INT = (SELECT COUNT(*) FROM REZAGADOS.Usuario WHERE Nombre = @Usuario AND Habilitada = 1);
+IF(@Habilitado = 1)
+	BEGIN                            
+	DECLARE @Cantidad_Intentos_Fallidos INT = (SELECT Cantidad_Intentos_Fallidos FROM REZAGADOS.Usuario WHERE Nombre = @Usuario); 
+	IF (@Cantidad_Intentos_Fallidos < 3)
+	BEGIN
+		DECLARE @Existe_Usuario_Contrasenia INT = (SELECT COUNT(*) FROM REZAGADOS.Usuario WHERE Nombre = @Usuario and Contrasenia = @Pass);
+		IF (@Existe_Usuario_Contrasenia = 1)
+		BEGIN
+			UPDATE REZAGADOS.Usuario SET Cantidad_Intentos_Fallidos=0 WHERE Nombre = @Usuario;
+			DECLARE @Existe_Rol INT = (SELECT COUNT(R.Id_Rol) FROM REZAGADOS.Usuario U, REZAGADOS.UsuarioXRol R WHERE U.Nombre = @Usuario AND U.Id_Usuario = R.Id_Usuario)				
+			IF (@Existe_Rol = 0)
+			SET @Respuesta = 'El usuario no tiene asignado un rol, o el rol ha sido inhabilitado'
+			ELSE								
+			SET @Respuesta = 'Abrir Sesion'
+		END
+		ELSE
+		BEGIN
+		UPDATE REZAGADOS.Usuario SET Cantidad_Intentos_Fallidos=(Cantidad_Intentos_Fallidos+1) WHERE Nombre = @Usuario;
+		SET @Cantidad_Intentos_Fallidos = (@Cantidad_Intentos_Fallidos + 1);
+		DECLARE @Cantidad_Intentos_Fallidos_String NVARCHAR(255) = @Cantidad_Intentos_Fallidos;
+		SET @Respuesta = 'Contraseña incorrecta, vuelva a intentarlo. Cantidad de intentos fallidos: ' + (@Cantidad_Intentos_Fallidos_String);
+		END
+	END
+	ELSE
+		BEGIN
+		DECLARE @Id_User NUMERIC(18,0) = (SELECT Id_Usuario FROM REZAGADOS.Usuario WHERE Nombre = @Usuario)
+		UPDATE REZAGADOS.Usuario SET Habilitada = 0 WHERE @Id_User = Id_Usuario
+		SET @Respuesta = 'Su usuario esta bloqueado, por sobrepasar la cantidad de logueos incorrectos';
+		END  
+	END
+	ELSE
+	SET @Respuesta = 'El Usuario se encuentra inhabilitado'
+END
+ELSE 
+SET @Respuesta = 'No existe el usuario, vuelva a intentarlo';                              
+END
+GO
+
+-----------------------------------------CAMBIO CONTRASEÑA------------------------------------------------
+
+USE [GD1C2015]
+GO
+CREATE PROCEDURE REZAGADOS.Cambio_Contrasenia (@Id_Usuario NUMERIC(18,0), @ContraseniaNueva VARCHAR(255), @Respuesta VARCHAR(255) OUTPUT)
+AS
+BEGIN
+	UPDATE REZAGADOS.Usuario SET Contrasenia = @ContraseniaNueva	WHERE Id_Usuario = @Id_Usuario;
+	UPDATE REZAGADOS.Usuario SET Contrasenia_Modificada = 1 WHERE Id_Usuario = @Id_Usuario;
+	SET @Respuesta = 'Contraseña cambiada correctamente!'
+END
+GO
+
+-----------------------------------------BAJA ROL------------------------------------------------
+
+USE [GD1C2015]
+GO
+CREATE PROCEDURE REZAGADOS.Baja_Rol(@Nombre_Rol varchar(255))
+AS
+BEGIN
+UPDATE REZAGADOS.Rol SET Habilitada=0 WHERE Nombre = @Nombre_Rol
+DECLARE @Codigo_Rol INT = (SELECT Id_Rol FROM REZAGADOS.ROL WHERE Nombre = @Nombre_Rol)
+DELETE FROM REZAGADOS.UsuarioXRol WHERE Id_Rol = @Codigo_Rol
+END
+GO
+
+-----------------------------------------ALTA ROL------------------------------------------------
+
+USE [GD1C2015]
+GO
+CREATE PROCEDURE REZAGADOS.Alta_Rol(@Nombre_Rol VARCHAR(255))
+AS
+BEGIN
+UPDATE REZAGADOS.Rol SET Habilitada=1 WHERE Nombre = @Nombre_Rol
+END
+GO
+
+-----------------------------------------MODIFICAR NOMBRE ROL------------------------------------------------
+
+USE [GD1C2015]
+GO
+CREATE PROCEDURE REZAGADOS.Modificar_Nombre_Rol(@Nombre_Rol VARCHAR(255), @Nombre_Viejo VARCHAR(255))
+AS
+BEGIN
+UPDATE REZAGADOS.Rol SET Nombre = @Nombre_Rol WHERE Nombre = @Nombre_Viejo
+END
+GO
+
+-----------------------------------------MODIFICAR FUNCIONALIDAD--------------------------------------------
+
+USE [GD1C2015]
+GO
+CREATE PROCEDURE REZAGADOS.Modificar_Funcionalidad(@Nombre_Func VARCHAR(255),@Nombre_Viejo VARCHAR(255))
+AS
+BEGIN
+UPDATE REZAGADOS.Funcionalidad SET Nombre = @Nombre_Func WHERE Nombre = @Nombre_Viejo
+END
+GO
+
+-----------------------------------------BAJA FUNCIONALIDAD------------------------------------------------
+
+USE [GD1C2015]
+GO
+CREATE PROCEDURE REZAGADOS.Baja_Funcionalidad(@Nombre_Func VARCHAR(255), @Nombre_Rol VARCHAR(255))
+AS
+BEGIN TRY
+BEGIN TRANSACTION
+	BEGIN	
+		DELETE FROM REZAGADOS.FuncionalidadXRol WHERE Id_Rol= (SELECT Id_Rol FROM REZAGADOS.Rol WHERE Nombre = @Nombre_Rol)  AND Id_Funcionalidad = (SELECT Id_Funcionalidad FROM REZAGADOS.Funcionalidad WHERE Nombre = @Nombre_Func) 
+	END
+COMMIT TRANSACTION
+END TRY
+BEGIN CATCH
+ROLLBACK TRANSACTION
+END CATCH
+GO
+
+-----------------------------------------DESASIGNAR ROL------------------------------------------------
+
+USE [GD1C2015]
+GO
+CREATE PROCEDURE REZAGADOS.Desasignar_Rol(@Nombre_Usuario VARCHAR(255), @Nombre_Rol VARCHAR(255))
+AS
+BEGIN TRY
+BEGIN TRANSACTION
+	BEGIN
+		DELETE FROM REZAGADOS.UsuarioXRol WHERE Id_Rol= (SELECT Id_Rol FROM REZAGADOS.Rol WHERE Nombre = @Nombre_Rol)  AND Id_Usuario = (SELECT Id_Usuario from REZAGADOS.Usuario WHERE Nombre = @Nombre_Usuario) 
+	END
+COMMIT TRANSACTION
+END TRY
+BEGIN CATCH
+ROLLBACK TRANSACTION
+END CATCH
+GO
+
+-----------------------------------------AGREGAR FUNCIONALIDAD------------------------------------------------
+
+USE [GD1C2015]
+GO
+CREATE PROCEDURE REZAGADOS.Agregar_Funcionalidad (@Nombre_Rol VARCHAR(255), @Nombre_Func VARCHAR(255))
+AS 
+Begin 
+BEGIN TRY
+BEGIN TRANSACTION      
+	INSERT INTO REZAGADOS.FuncionalidadXRol(Id_Rol,Id_Funcionalidad) values ((SELECT Id_Rol from REZAGADOS.Rol WHERE Nombre = @Nombre_Rol),(SELECT Id_Funcionalidad FROM REZAGADOS.Funcionalidad WHERE Nombre = @Nombre_Func))
+ COMMIT TRANSACTION
+ END TRY
+ BEGIN CATCH
+ ROLLBACK TRANSACTION
+ END CATCH  
+ END
+ GO
+
+-----------------------------------------ASIGNAR ROL------------------------------------------------
+
+USE [GD1C2015]
+GO
+CREATE PROCEDURE REZAGADOS.Asignar_Rol (@Nombre_Usuario VARCHAR(255), @Nombre_Rol VARCHAR(255))
+AS 
+BEGIN 
+BEGIN TRY
+BEGIN TRANSACTION      
+    INSERT INTO REZAGADOS.UsuarioXRol(Id_Usuario,Id_Rol) values ((SELECT Id_Usuario from REZAGADOS.Usuario WHERE Nombre = @Nombre_Usuario),(SELECT Id_Rol from REZAGADOS.Rol WHERE Nombre = @Nombre_Rol))
+COMMIT TRANSACTION
+END TRY
+BEGIN CATCH 
+ROLLBACK TRANSACTION
+END CATCH   
+END
+GO
+
+-----------------------------------------BAJA CUENTA------------------------------------------------
+
+USE [GD1C2015]
+GO
+CREATE PROCEDURE REZAGADOS.Baja_Cuenta(@Nro_Cuenta VARCHAR(255))
+AS
+BEGIN
+UPDATE REZAGADOS.Cuenta SET Estado='Inhabilitado' WHERE Cuenta.Id_Cuenta = @Nro_Cuenta
+END
+GO
+
+-----------------------------------------ALTA ROL------------------------------------------------
+
+USE [GD1C2015]
+GO
+CREATE PROCEDURE REZAGADOS.Alta_Cuenta(@Nro_Cuenta VARCHAR(255))
+AS
+BEGIN
+UPDATE REZAGADOS.Cuenta SET Estado='Habilitado' WHERE Cuenta.Id_Cuenta = @Nro_Cuenta
+END
+GO
+
+----------------------------------------CREAR CUENTA------------------------------------------------
+
+USE [GD1C2015]
+GO
+CREATE PROCEDURE REZAGADOS.Crear_Cuenta(@Id_Cuenta NUMERIC(18,0), @Id_Usuario NUMERIC(18,0), @Pais VARCHAR(255), @Moneda VARCHAR(255), @Fecha DATETIME, @Tipo VARCHAR(255))
+AS
+BEGIN
+IF NOT EXISTS (SELECT COUNT(*) FROM REZAGADOS.Cuenta WHERE Id_Cuenta=@Id_Cuenta)
+BEGIN
+INSERT INTO REZAGADOS.Cuenta(Id_Cuenta, Id_Usuario, Id_Pais, Id_Tipo_Cuenta, Id_Moneda, Estado, Fecha_Creacion)
+VALUES (@Id_Cuenta, @Id_Usuario, (SELECT Id_Pais FROM REZAGADOS.Pais WHERE Id_Pais=@Pais), (SELECT Id_Tipo_Cuenta FROM REZAGADOS.TipoCuenta WHERE Categoria=@Tipo), (SELECT Id_Moneda FROM REZAGADOS.Moneda WHERE Descripcion=@Moneda), 'Pendiente de activación', @Fecha)
+END
+END
+GO
+
+----------------------------------------MODIFICAR COSTO CUENTA------------------------------------------------
+
+USE [GD1C2015]
+GO
+CREATE PROCEDURE REZAGADOS.Modificar_Costo_Cuenta (@Categoria VARCHAR(255), @Costo NUMERIC (18,0))
+AS
+BEGIN
+IF EXISTS (SELECT Id_Tipo_Cuenta FROM REZAGADOS.TipoCuenta WHERE Categoria=@Categoria)
+UPDATE REZAGADOS.TipoCuenta SET Costo = @Costo WHERE Categoria=@Categoria
+END
+GO
+
+----------------------------------------------TARJETAS-------------------------------------------------------
